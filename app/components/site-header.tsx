@@ -1,12 +1,14 @@
 "use client";
 
 import { siteConfig } from "@/config/site";
-import { Github } from "lucide-react";
+import { ConnectButton } from "@rainbow-me/rainbowkit";
 import Link from "next/link";
+import { useAccount } from "wagmi";
 import { ThemeToggle } from "./theme-toggle";
-import { buttonVariants } from "./ui/button";
 
 export function SiteHeader() {
+  const { address } = useAccount();
+
   return (
     <header className="sticky top-0 z-40 w-full border-b bg-background">
       <div className="container flex h-16 items-center space-x-4 sm:justify-between sm:space-x-0">
@@ -19,18 +21,21 @@ export function SiteHeader() {
           </Link>
         </div>
         <div className="flex flex-1 items-center justify-end space-x-6">
+          <ConnectButton />
           <Link
             href="/profiles"
             className="flex text-sm font-medium text-muted-foreground"
           >
             Explore
           </Link>
-          <Link
-            href="/profiles"
-            className="flex text-sm font-medium text-muted-foreground"
-          >
-            Profile
-          </Link>
+          {address && (
+            <Link
+              href={`/profiles/${address}`}
+              className="flex text-sm font-medium text-muted-foreground"
+            >
+              Profile
+            </Link>
+          )}
           <Link
             href={siteConfig.links.github}
             target="_blank"
