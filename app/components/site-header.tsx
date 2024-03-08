@@ -18,25 +18,28 @@ export function SiteHeader() {
             </span>
           </Link>
         </div>
-        <div className="flex flex-1 items-center justify-end space-x-4">
-          <nav className="flex items-center space-x-1">
-            <Link
-              href={siteConfig.links.github}
-              target="_blank"
-              rel="noreferrer"
-            >
-              <div
-                className={buttonVariants({
-                  size: "icon",
-                  variant: "ghost",
-                })}
-              >
-                <Github className="h-5 w-5" />
-                <span className="sr-only">GitHub</span>
-              </div>
-            </Link>
-            <ThemeToggle />
-          </nav>
+        <div className="flex flex-1 items-center justify-end space-x-6">
+          <Link
+            href="/profiles"
+            className="flex text-sm font-medium text-muted-foreground"
+          >
+            Explore
+          </Link>
+          <Link
+            href="/profiles"
+            className="flex text-sm font-medium text-muted-foreground"
+          >
+            Profile
+          </Link>
+          <Link
+            href={siteConfig.links.github}
+            target="_blank"
+            rel="noreferrer"
+            className="flex text-sm font-medium text-muted-foreground"
+          >
+            GitHub
+          </Link>
+          <ThemeToggle />
         </div>
       </div>
     </header>
