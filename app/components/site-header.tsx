@@ -20,7 +20,7 @@ export function SiteHeader() {
             </span>
           </Link>
         </div>
-        <div className="flex flex-1 items-center justify-end space-x-6">
+        <div className="flex flex-1 items-center justify-end space-x-8">
           <ConnectButton />
           <Link
             href="/profiles"
