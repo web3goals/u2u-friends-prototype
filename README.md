@@ -4,7 +4,7 @@ Social network in the U2U ecosystem. A place for your profiles, posts, likes and
 
 ## 🔗 Artifacts
 
-...
+- Application - [u2u-friends.vercel.app](https://u2u-friends.vercel.app/)
 
 ## ⚒️ How it's made
 
