@@ -45,18 +45,14 @@ export function ProfileEditForm() {
       functionName: "getURI",
       args: [address || zeroAddress],
     });
-  const { data: metadata } = useMetadataLoader<ProfileMetadata>(metadataUri);
+  const { data: metadata, isLoaded: isMetadataLoaded } =
+    useMetadataLoader<ProfileMetadata>(metadataUri);
 
-  /**
-   * Display a form depending on metadata
-   */
-  if (isMetadataUriFetched && metadataUri != "" && metadata !== undefined) {
-    return <EditForm metadata={metadata} />;
+  if (!isMetadataUriFetched || !isMetadataLoaded) {
+    return <Skeleton className="h-4" />;
   }
-  if (isMetadataUriFetched && metadataUri == "") {
-    return <EditForm />;
-  }
-  return <Skeleton className="h-4" />;
+
+  return <EditForm metadata={metadata} />;
 }
 
 function EditForm(props: { metadata?: ProfileMetadata }) {
