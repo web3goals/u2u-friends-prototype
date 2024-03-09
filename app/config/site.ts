@@ -34,7 +34,7 @@ export const siteConfig = {
       },
       testnet: true,
     }),
-    profile: "0x0000000000000000000000000000000000000000" as `0x${string}`,
+    profile: "0x96E6AF6E9e400d0Cd6a4045F122df22BCaAAca59" as `0x${string}`,
     post: "0x0000000000000000000000000000000000000000" as `0x${string}`,
   },
 };
