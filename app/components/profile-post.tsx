@@ -16,20 +16,14 @@ import {
   useReadContract,
   useWalletClient,
 } from "wagmi";
+import { ProfilePostCommentDialog } from "./profile-post-comment-dialog";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
+import { Separator } from "./ui/separator";
 import { Skeleton } from "./ui/skeleton";
 import { toast } from "./ui/use-toast";
 
 export function ProfilePost(props: { address: `0x${string}`; post: bigint }) {
-  return (
-    <div className="w-full flex flex-col items-center border rounded px-4 py-4">
-      <PostHeader address={props.address} post={props.post} />
-    </div>
-  );
-}
-
-function PostHeader(props: { address: `0x${string}`; post: bigint }) {
   /**
    * Define profile metadata
    */
@@ -56,53 +50,74 @@ function PostHeader(props: { address: `0x${string}`; post: bigint }) {
   const { data: postMetadata, isLoaded: isPostMetadataLoaded } =
     useMetadataLoader<PostMetadata>(postMetadataUri);
 
+  /**
+   * Define post comments
+   */
+  const {
+    data: postComments,
+    isFetched: isPostCommentsFetched,
+    refetch: refetchPostComments,
+  } = useReadContract({
+    address: siteConfig.contracts.post,
+    abi: postAbi,
+    functionName: "getComments",
+    args: [props.post],
+  });
+
   const emojiAvatar = emojiAvatarForAddress(props.address);
 
   if (
     !isProfileMetadataUriFetched ||
     !isProfileMetadataLoaded ||
     !isPostMetadataUriFetched ||
-    !isPostMetadataLoaded
+    !isPostMetadataLoaded ||
+    !isPostCommentsFetched
   ) {
     return <Skeleton className="w-full h-4" />;
   }
 
   return (
-    <div className="w-full flex flex-row gap-2">
-      {/* Left part */}
-      <div>
-        {/* Avatar */}
-        <Avatar className="size-12">
-          <AvatarImage src="" alt="Avatar" />
-          <AvatarFallback
-            style={{ background: emojiAvatar.color }}
-            className="text-xl"
-          >
-            {emojiAvatar.emoji}
-          </AvatarFallback>
-        </Avatar>
-      </div>
-      {/* Right part */}
-      <div className="w-full">
-        <p className="text-base font-bold">{profileMetadata?.name}</p>
-        <p className="text-sm text-muted-foreground">
-          {addressToShortAddress(props.address)}
-          {" · "}
-          {new Date(postMetadata?.createdDate || 0).toLocaleString()}
-        </p>
-        <p className="text-base mt-2">{postMetadata?.text}</p>
-        <div className="flex flex-row gap-2 mt-2">
-          <PostHeaderLikeButton post={props.post} />
-          <Button variant="outline" size="sm" disabled>
-            Comment
-          </Button>
+    <div className="w-full flex flex-col items-center border rounded px-4 py-4">
+      {/* Header */}
+      <div className="w-full flex flex-row gap-2">
+        {/* Left part */}
+        <div>
+          {/* Avatar */}
+          <Avatar className="size-12">
+            <AvatarImage src="" alt="Avatar" />
+            <AvatarFallback
+              style={{ background: emojiAvatar.color }}
+              className="text-xl"
+            >
+              {emojiAvatar.emoji}
+            </AvatarFallback>
+          </Avatar>
+        </div>
+        {/* Right part */}
+        <div className="w-full">
+          <p className="text-base font-bold">{profileMetadata?.name}</p>
+          <p className="text-sm text-muted-foreground">
+            {addressToShortAddress(props.address)}
+            {" · "}
+            {new Date(postMetadata?.createdDate || 0).toLocaleString()}
+          </p>
+          <p className="text-base mt-2">{postMetadata?.text}</p>
+          <div className="flex flex-row gap-2 mt-2">
+            <PostLikeButton post={props.post} />
+            <ProfilePostCommentDialog
+              post={props.post}
+              onComment={() => refetchPostComments()}
+            />
+          </div>
         </div>
       </div>
+      {/* Comments */}
+      <PostComments comments={postComments?.toReversed()} />
     </div>
   );
 }
 
-function PostHeaderLikeButton(props: { post: bigint }) {
+function PostLikeButton(props: { post: bigint }) {
   const { handleError } = useError();
   const { address } = useAccount();
   const publicClient = usePublicClient();
@@ -171,10 +186,95 @@ function PostHeaderLikeButton(props: { post: bigint }) {
   );
 }
 
-function PostComments(props: {}) {
-  return <></>;
+function PostComments(props: { comments: bigint[] | undefined }) {
+  if (props.comments === undefined || props.comments.length === 0) {
+    return <></>;
+  }
+
+  return (
+    <>
+      <Separator className="my-4" />
+      <div className="w-full flex flex-col gap-4">
+        {props.comments.map((comment, index) => (
+          <PostComment key={index} comment={comment} />
+        ))}
+      </div>
+    </>
+  );
 }
 
-function PostComment(props: {}) {
-  return <></>;
+function PostComment(props: { comment: bigint }) {
+  /**
+   * Define comment metadata
+   */
+  const { data: commentMetadataUri, isFetched: isCommentMetadataUriFetched } =
+    useReadContract({
+      address: siteConfig.contracts.post,
+      abi: postAbi,
+      functionName: "tokenURI",
+      args: [props.comment],
+    });
+  const { data: commentMetadata, isLoaded: isCommentMetadataLoaded } =
+    useMetadataLoader<PostMetadata>(commentMetadataUri);
+
+  /**
+   * Define comment author metadata
+   */
+  const { data: author, isFetched: isAuthorFetched } = useReadContract({
+    address: siteConfig.contracts.post,
+    abi: postAbi,
+    functionName: "ownerOf",
+    args: [props.comment],
+  });
+  const {
+    data: authorProfileMetadataUri,
+    isFetched: isAuthorProfileMetadataUriFetched,
+  } = useReadContract({
+    address: siteConfig.contracts.profile,
+    abi: profileAbi,
+    functionName: "getURI",
+    args: [author || zeroAddress],
+  });
+  const {
+    data: authorProfileMetadata,
+    isLoaded: isAuthorProfileMetadataLoaded,
+  } = useMetadataLoader<ProfileMetadata>(authorProfileMetadataUri);
+
+  const emojiAvatar = emojiAvatarForAddress(author || zeroAddress);
+
+  if (
+    !isCommentMetadataUriFetched ||
+    !isCommentMetadataLoaded ||
+    !isAuthorFetched ||
+    !isAuthorProfileMetadataUriFetched ||
+    !isAuthorProfileMetadataLoaded
+  ) {
+    return <Skeleton className="w-full h-4" />;
+  }
+
+  return (
+    <div className="w-full flex flex-row gap-2">
+      <div>
+        {/* Avatar */}
+        <Avatar className="size-8">
+          <AvatarImage src="" alt="Avatar" />
+          <AvatarFallback
+            style={{ background: emojiAvatar.color }}
+            className="text-xs"
+          >
+            {emojiAvatar.emoji}
+          </AvatarFallback>
+        </Avatar>
+      </div>
+      <div className="w-full">
+        <p className="text-sm font-bold">{authorProfileMetadata?.name}</p>
+        <p className="text-xs text-muted-foreground">
+          {addressToShortAddress(author || zeroAddress)}
+          {" · "}
+          {new Date(commentMetadata?.createdDate || 0).toLocaleTimeString()}
+        </p>
+        <p className="text-sm mt-2">{commentMetadata?.text}</p>
+      </div>
+    </div>
+  );
 }
