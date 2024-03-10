@@ -10,7 +10,7 @@ export default function ProfilePage({
   params: { address: string };
 }) {
   return (
-    <div className="container py-10 lg:px-96">
+    <div className="container py-10 lg:px-80">
       {isAddress(params.address) ? (
         <>
           <ProfileHeader address={params.address} />
