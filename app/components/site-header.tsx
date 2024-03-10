@@ -24,14 +24,14 @@ export function SiteHeader() {
           <ConnectButton />
           <Link
             href="/profiles"
-            className="flex text-sm font-medium text-muted-foreground"
+            className="hidden md:block text-sm font-medium text-muted-foreground"
           >
             Explore
           </Link>
           {address && (
             <Link
               href={`/profiles/${address}`}
-              className="flex text-sm font-medium text-muted-foreground"
+              className="hidden md:block text-sm font-medium text-muted-foreground"
             >
               Profile
             </Link>
@@ -40,7 +40,7 @@ export function SiteHeader() {
             href={siteConfig.links.github}
             target="_blank"
             rel="noreferrer"
-            className="flex text-sm font-medium text-muted-foreground"
+            className="hidden md:block text-sm font-medium text-muted-foreground"
           >
             GitHub
           </Link>
