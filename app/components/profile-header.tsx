@@ -12,6 +12,7 @@ import { useAccount, useReadContract } from "wagmi";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
 import { Skeleton } from "./ui/skeleton";
+import { ipfsUriToHttpUri } from "@/lib/ipfs";
 
 export function ProfileHeader(props: { address: `0x${string}` }) {
   const { address } = useAccount();
@@ -39,7 +40,10 @@ export function ProfileHeader(props: { address: `0x${string}` }) {
     <div>
       {/* Avatar */}
       <Avatar className="size-32">
-        <AvatarImage src="" alt="Avatar" />
+        <AvatarImage
+          src={metadata?.avatar ? ipfsUriToHttpUri(metadata.avatar) : undefined}
+          alt="Avatar"
+        />
         <AvatarFallback
           style={{ background: emojiAvatar.color }}
           className="text-5xl"

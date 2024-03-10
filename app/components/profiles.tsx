@@ -4,13 +4,14 @@ import { siteConfig } from "@/config/site";
 import { profileAbi } from "@/contracts/abi/profile";
 import useMetadataLoader from "@/hooks/useMetadataLoader";
 import { emojiAvatarForAddress } from "@/lib/avatars";
+import { addressToShortAddress } from "@/lib/converters";
+import { ipfsUriToHttpUri } from "@/lib/ipfs";
 import { ProfileMetadata } from "@/types/profile-metadata";
+import Link from "next/link";
 import { useInfiniteReadContracts, useReadContract } from "wagmi";
 import EntityList from "./entity-list";
-import { Skeleton } from "./ui/skeleton";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
-import { addressToShortAddress } from "@/lib/converters";
-import Link from "next/link";
+import { Skeleton } from "./ui/skeleton";
 
 export function Profiles() {
   const limit = 10;
@@ -74,12 +75,19 @@ function Profile(props: { profile: `0x${string}` }) {
 
   return (
     <Link href={`/profiles/${props.profile}`}>
-      <div className="w-full flex flex-row gap-2 border rounded px-4 py-4">
+      <div className="w-full flex flex-row gap-3 border rounded px-4 py-4">
         {/* Left part */}
         <div>
           {/* Avatar */}
           <Avatar className="size-12">
-            <AvatarImage src="" alt="Avatar" />
+            <AvatarImage
+              src={
+                profileMetadata?.avatar
+                  ? ipfsUriToHttpUri(profileMetadata.avatar)
+                  : undefined
+              }
+              alt="Avatar"
+            />
             <AvatarFallback
               style={{ background: emojiAvatar.color }}
               className="text-xl"

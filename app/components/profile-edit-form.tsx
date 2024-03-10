@@ -5,7 +5,7 @@ import { siteConfig } from "@/config/site";
 import { profileAbi } from "@/contracts/abi/profile";
 import useError from "@/hooks/useError";
 import useMetadataLoader from "@/hooks/useMetadataLoader";
-import { uploadJsonToIpfs } from "@/lib/ipfs";
+import { uploadFileToIpfs, uploadJsonToIpfs } from "@/lib/ipfs";
 import { ProfileMetadata } from "@/types/profile-metadata";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Loader2 } from "lucide-react";
@@ -62,6 +62,7 @@ function EditForm(props: { metadata?: ProfileMetadata }) {
   const [isFormSubmitting, setIsFormSubmitting] = useState(false);
 
   const formSchema = z.object({
+    avatar: z.instanceof(FileList),
     name: z.string().optional(),
     bio: z.string().optional(),
     website: z.string().url().optional().or(z.literal("")),
@@ -86,13 +87,19 @@ function EditForm(props: { metadata?: ProfileMetadata }) {
       if (!walletClient) {
         throw new Error("Wallet is not connected");
       }
+      // Upload avatar to IPFS
+      let avatarUri;
+      if (values.avatar.length > 0) {
+        avatarUri = await uploadFileToIpfs(values.avatar[0]);
+      }
       // Upload data to IPFS
-      const matadata: ProfileMetadata = {
+      const metadata: ProfileMetadata = {
+        avatar: avatarUri,
         name: values.name,
         bio: values.bio,
         website: values.website,
       };
-      const metadataUri = await uploadJsonToIpfs(matadata);
+      const metadataUri = await uploadJsonToIpfs(metadata);
       // Send request
       const txHash = await walletClient.writeContract({
         address: siteConfig.contracts.profile,
@@ -117,6 +124,23 @@ function EditForm(props: { metadata?: ProfileMetadata }) {
   return (
     <Form {...form}>
       <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+        <FormField
+          control={form.control}
+          name="avatar"
+          render={({ field }) => (
+            <FormItem>
+              <FormLabel>Avatar</FormLabel>
+              <FormControl>
+                <Input
+                  type="file"
+                  placeholder="Alice"
+                  {...form.register("avatar")}
+                />
+              </FormControl>
+              <FormMessage />
+            </FormItem>
+          )}
+        />
         <FormField
           control={form.control}
           name="name"

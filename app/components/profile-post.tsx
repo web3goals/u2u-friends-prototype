@@ -22,6 +22,7 @@ import { Button } from "./ui/button";
 import { Separator } from "./ui/separator";
 import { Skeleton } from "./ui/skeleton";
 import { toast } from "./ui/use-toast";
+import { ipfsUriToHttpUri } from "@/lib/ipfs";
 
 export function ProfilePost(props: { address: `0x${string}`; post: bigint }) {
   /**
@@ -84,7 +85,14 @@ export function ProfilePost(props: { address: `0x${string}`; post: bigint }) {
         <div>
           {/* Avatar */}
           <Avatar className="size-12">
-            <AvatarImage src="" alt="Avatar" />
+            <AvatarImage
+              src={
+                profileMetadata?.avatar
+                  ? ipfsUriToHttpUri(profileMetadata.avatar)
+                  : undefined
+              }
+              alt="Avatar"
+            />
             <AvatarFallback
               style={{ background: emojiAvatar.color }}
               className="text-xl"
@@ -257,7 +265,14 @@ function PostComment(props: { comment: bigint }) {
       <div>
         {/* Avatar */}
         <Avatar className="size-8">
-          <AvatarImage src="" alt="Avatar" />
+          <AvatarImage
+            src={
+              authorProfileMetadata?.avatar
+                ? ipfsUriToHttpUri(authorProfileMetadata.avatar)
+                : undefined
+            }
+            alt="Avatar"
+          />
           <AvatarFallback
             style={{ background: emojiAvatar.color }}
             className="text-xs"
