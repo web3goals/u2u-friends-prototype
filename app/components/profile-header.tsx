@@ -11,19 +11,9 @@ import { isAddressEqual, zeroAddress } from "viem";
 import { useAccount, useReadContract } from "wagmi";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import { Button } from "./ui/button";
-import { Separator } from "./ui/separator";
 import { Skeleton } from "./ui/skeleton";
 
-export function Profile(props: { address: `0x${string}` }) {
-  return (
-    <>
-      <ProfileHeader address={props.address} />
-      <Separator className="my-8" />
-    </>
-  );
-}
-
-function ProfileHeader(props: { address: `0x${string}` }) {
+export function ProfileHeader(props: { address: `0x${string}` }) {
   const { address } = useAccount();
 
   /**

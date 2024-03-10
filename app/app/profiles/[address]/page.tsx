@@ -1,4 +1,5 @@
-import { Profile } from "@/components/profile";
+import { ProfileHeader } from "@/components/profile-header";
+import { Separator } from "@/components/ui/separator";
 import { Skeleton } from "@/components/ui/skeleton";
 import { isAddress } from "viem";
 
@@ -10,7 +11,10 @@ export default function ProfilePage({
   return (
     <div className="container py-10 lg:px-96">
       {isAddress(params.address) ? (
-        <Profile address={params.address} />
+        <>
+          <ProfileHeader address={params.address} />
+          <Separator className="my-8" />
+        </>
       ) : (
         <Skeleton className="h-4" />
       )}
