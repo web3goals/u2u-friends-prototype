@@ -56,6 +56,7 @@ export function ProfilePostCreateDialog(props: { onCreate: () => {} }) {
       // Upload data to IPFS
       const matadata: PostMetadata = {
         text: values.text,
+        createdDate: new Date().getTime(),
       };
       const metadataUri = await uploadJsonToIpfs(matadata);
       // Send request
